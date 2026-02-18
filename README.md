@@ -3,6 +3,7 @@
 **ClickStack** is an open-source observability stack combining ClickHouse, HyperDX, and OpenTelemetry for logs, metrics, and traces.
 
 ## Quick Start
+
 ```bash
 helm repo add clickstack https://clickhouse.github.io/ClickStack-helm-charts
 helm repo update
