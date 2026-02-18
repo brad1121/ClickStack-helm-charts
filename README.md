@@ -1,4 +1,4 @@
-# ClickStack Helm Charts
+# ClickStack Helm Charts!
 
 **ClickStack** is an open-source observability stack combining ClickHouse, HyperDX, and OpenTelemetry for logs, metrics, and traces.
 
