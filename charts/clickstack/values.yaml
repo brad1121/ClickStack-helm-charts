@@ -362,6 +362,23 @@ clickhouse:
       appUserPassword: "hyperdx"
       otelUserPassword: "otelcollectorpass"
       otelUserName: "otelcollector"
+      # Extra ClickHouse users to create in addition to the built-in app and otel users.
+      # Each entry supports:
+      #   name:     (required) username
+      #   password: (required) plaintext password
+      #   profile:  (optional) ClickHouse settings profile, defaults to "default"
+      #   networks: (optional) list of IP/CIDR strings; defaults to clusterCidrs when omitted
+      #   grants:   (optional) list of GRANT SQL statements
+      # Example:
+      # extraUsers:
+      #   - name: "analyst"
+      #     password: "s3cr3t"
+      #     profile: "readonly"
+      #     networks:
+      #       - "192.168.1.0/24"
+      #     grants:
+      #       - "GRANT SELECT ON default.*"
+      extraUsers: []
     # Network CIDRs for Kubernetes cluster access control
     # These CIDRs ensure ClickHouse connections are locked down to intra-cluster only
     # For PRODUCTION: Remove development CIDRs and keep only your cluster's specific CIDR

@@ -130,3 +130,105 @@ tests:
       - isNotEmpty:
           path: data
         documentSelector: *users-configmap-selector
+
+  - it: should render extra users with explicit networks and grants
+    set:
+      clickhouse:
+        config:
+          users:
+            extraUsers:
+              - name: "analyst"
+                password: "analystpass"
+                profile: "readonly"
+                networks:
+                  - "192.168.1.0/24"
+                grants:
+                  - "GRANT SELECT ON default.*"
+    asserts:
+      - isKind:
+          of: ConfigMap
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<analyst>"
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<password>analystpass</password>"
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<ip>192.168.1.0/24</ip>"
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<profile>readonly</profile>"
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "GRANT SELECT ON default\\.\\*"
+        documentSelector: *users-configmap-selector
+
+  - it: should render extra users inheriting clusterCidrs when networks not set
+    set:
+      clickhouse:
+        config:
+          clusterCidrs:
+            - "10.244.0.0/16"
+          users:
+            extraUsers:
+              - name: "reporter"
+                password: "reporterpass"
+    asserts:
+      - isKind:
+          of: ConfigMap
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<reporter>"
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<ip>10.244.0.0/16</ip>"
+        documentSelector: *users-configmap-selector
+
+  - it: should render multiple extra users
+    set:
+      clickhouse:
+        config:
+          users:
+            extraUsers:
+              - name: "user1"
+                password: "pass1"
+              - name: "user2"
+                password: "pass2"
+                profile: "readonly"
+                grants:
+                  - "GRANT SELECT ON default.*"
+    asserts:
+      - isKind:
+          of: ConfigMap
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<user1>"
+        documentSelector: *users-configmap-selector
+      - matchRegex:
+          path: data["users.xml"]
+          pattern: "<user2>"
+        documentSelector: *users-configmap-selector
+
+  - it: should not render extra users block when extraUsers is empty
+    set:
+      clickhouse:
+        config:
+          users:
+            extraUsers: []
+    asserts:
+      - isKind:
+          of: ConfigMap
+        documentSelector: *users-configmap-selector
+      - notMatchRegex:
+          path: data["users.xml"]
+          pattern: "extraUsers"
+        documentSelector: *users-configmap-selector

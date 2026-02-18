@@ -60,6 +60,33 @@
                 <query>GRANT SELECT,INSERT,CREATE,SHOW ON default.*</query>
             </grants>
         </{{ .Values.otel.clickhouseUser | default .Values.clickhouse.config.users.otelUserName }}>
+        {{- range .Values.clickhouse.config.users.extraUsers }}
+        <{{ .name }}>
+            <password>{{ .password }}</password>
+            <networks>
+                {{- if .networks }}
+                {{- range .networks }}
+                <ip>{{ . }}</ip>
+                {{- end }}
+                {{- else if $.Values.clickhouse.config.clusterCidrs }}
+                {{- range $.Values.clickhouse.config.clusterCidrs }}
+                <ip>{{ . }}</ip>
+                {{- end }}
+                {{- else }}
+                <ip>10.0.0.0/8</ip>  <!-- Default fallback -->
+                {{- end }}
+            </networks>
+            <profile>{{ .profile | default "default" }}</profile>
+            <quota>default</quota>
+            {{- if .grants }}
+            <grants>
+                {{- range .grants }}
+                <query>{{ . }}</query>
+                {{- end }}
+            </grants>
+            {{- end }}
+        </{{ .name }}>
+        {{- end }}
     </users>
 
     <quotas>
